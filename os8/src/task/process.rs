@@ -4,6 +4,7 @@ use crate::fs::{File, Stdin, Stdout};
 use crate::mm::{translated_refmut, MemorySet, KERNEL_SPACE};
 use crate::sync::{Condvar, Mutex, Semaphore, UPSafeCell};
 use crate::trap::{trap_handler, TrapContext};
+// use crate::task::BankerTest::BankerTest;
 use alloc::string::String;
 use alloc::sync::{Arc, Weak};
 use alloc::vec;
@@ -30,6 +31,13 @@ pub struct ProcessControlBlockInner {
     pub mutex_list: Vec<Option<Arc<dyn Mutex>>>,
     pub semaphore_list: Vec<Option<Arc<Semaphore>>>,
     pub condvar_list: Vec<Option<Arc<Condvar>>>,
+    // pub banker_test: BankerTest,
+    pub mutex_alloc: Vec<Option<usize>>,
+    pub mutex_request: Vec<Option<usize>>,
+    pub sem_avail: Vec<usize>,
+    pub sem_alloc: Vec<Vec<usize>>,
+    pub sem_request: Vec<Option<usize>>,
+    pub deadlock_det_enabled: bool,
 }
 
 impl ProcessControlBlockInner {
@@ -97,6 +105,12 @@ impl ProcessControlBlock {
                     mutex_list: Vec::new(),
                     semaphore_list: Vec::new(),
                     condvar_list: Vec::new(),
+                    mutex_alloc: Vec::new(),
+                    mutex_request: vec![None],
+                    sem_avail: Vec::new(),
+                    sem_alloc: vec![Vec::new()],
+                    sem_request: vec![None],
+                    deadlock_det_enabled: false,
                 })
             },
         });
@@ -218,6 +232,12 @@ impl ProcessControlBlock {
                     mutex_list: Vec::new(),
                     semaphore_list: Vec::new(),
                     condvar_list: Vec::new(),
+                    mutex_alloc: Vec::new(),
+                    mutex_request: vec![None],
+                    sem_avail: Vec::new(),
+                    sem_alloc: vec![Vec::new()],
+                    sem_request: vec![None],
+                    deadlock_det_enabled: false,
                 })
             },
         });
@@ -272,9 +292,16 @@ impl ProcessControlBlock {
                     mutex_list: Vec::new(),
                     semaphore_list: Vec::new(),
                     condvar_list: Vec::new(),
+                    mutex_alloc: Vec::new(),
+                    mutex_request: vec![None],
+                    sem_avail: Vec::new(),
+                    sem_alloc: vec![Vec::new()],
+                    sem_request: vec![None],
+                    deadlock_det_enabled: false,
                 })
             },
         });
         process
     }
 }
+ 

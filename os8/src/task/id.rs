@@ -109,9 +109,9 @@ impl KernelStack {
         kernel_stack_top
     }
 }
-
+// Information required for execution of user mode [static]
 pub struct TaskUserRes {
-    pub tid: usize,
+    pub tid: usize,                                 // process identifier
     pub ustack_base: usize,
     pub process: Weak<ProcessControlBlock>,
 }
